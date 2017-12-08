@@ -1,11 +1,11 @@
-import java.util.*
+import java.util.*;
 
 public class NetworkConnect {
 	static int n;
 	static int[][] G;
 	
 	public static int[] BFS(int src, int[][] Gw){
-		int[] q = new int[n], p = new int[n];
+		int[] q = new int[n+1], p = new int[n+1];
 		int head = 0, tail = 1;
 		q[0] = src;
 		p[src] = -1;
@@ -14,11 +14,9 @@ public class NetworkConnect {
 			mac = q[head];
 			head++;
 			int i = 1;
-			while(true){
+			while(i <= G[mac][0]){
 				int nbr = G[mac][i];
-				if(nbr < 0)
-					break;
-				if(Gw[mac][nbr] >= 0 && p[nbr] != 0){
+				if(Gw[mac][nbr] > 0 && p[nbr] == 0){
 					p[nbr] = mac;
 					q[tail] = nbr;
 					tail++;
@@ -37,13 +35,13 @@ public class NetworkConnect {
 			min = (Gw[u][t] < min) ? Gw[u][t] : min;
 			t = u;
 		}
-		return int(min);
+		return (int)min;
 	}
 	
 	public static void augment(int[] path, int[][] Gw, int s, int t){
 		int b = bottleneck(path, Gw, s, t);
 		while(t != s){
-			int u = p[t];
+			int u = path[t];
 			Gw[u][t] -= b;
 			Gw[t][u] += b;
 			t = u;
@@ -58,12 +56,13 @@ public class NetworkConnect {
 		}
 	}
 	
-	public void printG(Gw){
+	public static void printG(int[][] Gw){
 		for(int i=1; i < n+1; i++){
 			int j = 1;
 			int v = G[i][j];
-			System.out.print(i + ": ");
+			System.out.println(i + ": ");
 			while(v != 0){
+				System.out.println(v + ": ");
 				System.out.println("--" + Gw[i][v] + "--");
 				System.out.println("--" + Gw[v][i] + "--");
 				j++;
@@ -86,12 +85,15 @@ public class NetworkConnect {
 			u = sc.nextInt();
 			v = sc.nextInt();
 			w = sc.nextInt();
-			G[u][0] +=1;
+			G[u][0] ++;
 			int c = G[u][0];
 			G[u][c] = v;
 			Gw[u][v] = w;
+			G[v][0] ++;
+			c = G[v][0];
+			G[v][c] = u;
 		}
-		EDKP(s, t, Gw)
+		EDKP(s, t, Gw);
 		printG(Gw);
 	}
 }
