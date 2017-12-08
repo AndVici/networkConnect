@@ -1,10 +1,11 @@
 import java.util.*;
+import java.lang.Math.*;
 
 public class NetworkConnect {
 	static int n;
 	static int[][] G;
 	
-	public static int[] BFS(int src, int[][] Gw){
+	public static int[] BFS(int src, int[][] Gw, boolean reverse){
 		int[] q = new int[n+1], p = new int[n+1];
 		int head = 0, tail = 1;
 		q[0] = src;
@@ -15,8 +16,9 @@ public class NetworkConnect {
 			head++;
 			int i = 1;
 			while(i <= G[mac][0]){
-				int nbr = G[mac][i];
-				if(Gw[mac][nbr] > 0 && p[nbr] == 0){
+				int nbr = Math.abs(G[mac][i]);
+				int bndwdth = (reverse) ? Gw[nbr][mac] : Gw[mac][nbr];
+				if( bndwdth > 0 && p[nbr] == 0){
 					p[nbr] = mac;
 					q[tail] = nbr;
 					tail++;
@@ -49,22 +51,27 @@ public class NetworkConnect {
 	}
 			
 	public static void EDKP(int s, int t, int[][] Gw){
-		int[] path = BFS(s, Gw);
+		int[] path = BFS(s, Gw, false);
 		while(path[t] != 0){
 			augment(path, Gw, s, t);
 			path = BFS(s, Gw);
 		}
 	}
 	
+	public static int[] reverse(int[][] Gw, t){
+		int[] revpath = BFS(t, Gw, true);
+		
+	
 	public static void printG(int[][] Gw){
 		for(int i=1; i < n+1; i++){
 			int j = 1;
 			int v = G[i][j];
-			System.out.println(i + ": ");
 			while(v != 0){
-				System.out.println(v + ": ");
-				System.out.println("--" + Gw[i][v] + "--");
-				System.out.println("--" + Gw[v][i] + "--");
+				if(v > 0){
+					System.out.print(i + "--");
+					System.out.print(Gw[i][v] + "--");
+					System.out.println(v);
+				}
 				j++;
 				v = G[i][j];
 			}
@@ -91,7 +98,7 @@ public class NetworkConnect {
 			Gw[u][v] = w;
 			G[v][0] ++;
 			c = G[v][0];
-			G[v][c] = u;
+			G[v][c] = u * -1;
 		}
 		EDKP(s, t, Gw);
 		printG(Gw);
