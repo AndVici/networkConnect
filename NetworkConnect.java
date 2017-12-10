@@ -50,17 +50,50 @@ public class NetworkConnect {
 		}
 	}
 			
-	public static void EDKP(int s, int t, int[][] Gw){
+	public static int[] EDKP(int s, int t, int[][] Gw){
 		int[] path = BFS(s, Gw, false);
 		while(path[t] != 0){
 			augment(path, Gw, s, t);
-			path = BFS(s, Gw);
+			path = BFS(s, Gw, false);
 		}
+		return connect(Gw, path, t, s);
 	}
 	
-	public static int[] reverse(int[][] Gw, t){
-		int[] revpath = BFS(t, Gw, true);
-		
+	public static int[] Pmin(int[] path){
+		int[] minPath = new int[n+1];
+		int j = 0;
+		for(int i = 1; i <= n; i++){
+			if(path[i] != 0){
+				minPath[j] = i;
+				j++;
+			}
+		}
+		return minPath;
+	}
+	
+	public static int[] connect(int[][] Gw, int[] Spath, int t, int s){
+		int v = -1, u = 1;
+		int[] revTpath = BFS(t, Gw, true), e = new int[2];
+		int[] tp = Pmin(revTpath);
+		while (v == -1){
+			while(Spath[u]==0 && u < n)
+				u++;
+			int i = 0;
+			while(tp[i] != 0){
+				if(Gw[u][tp[i]] + Gw[tp[i]][u] == 0){
+					v = tp[i];
+					break;
+				}
+				i++;
+			}
+			u = (v == -1) ? u+1 : u;
+			if(u>n)
+				break;
+		}
+		e[0] = u;
+		e[1] = v;
+		return e;
+	}
 	
 	public static void printG(int[][] Gw){
 		for(int i=1; i < n+1; i++){
@@ -79,12 +112,20 @@ public class NetworkConnect {
 		}
 	}
 	
+	public static void printPath(int[] path, int dest){
+		while(path[dest] != 0){
+			System.out.print(dest);
+			dest = path[dest];
+		}
+		System.out.println();
+	}
+	
 	public static void main(String[] args){
 		Scanner sc = new Scanner(System.in);
 		n = sc.nextInt();
 		int m = sc.nextInt();
 		G = new int[n+1][m+1];
-		int[][] Gw = new int[n+1][m+1];
+		int[][] Gw = new int[n+1][n+1];
 		int s = sc.nextInt();
 		int t = sc.nextInt();
 		int u, v, w;
@@ -100,7 +141,9 @@ public class NetworkConnect {
 			c = G[v][0];
 			G[v][c] = u * -1;
 		}
-		EDKP(s, t, Gw);
-		printG(Gw);
+		int[] e = EDKP(s, t, Gw);
+		
+		System.out.println("[" + e[0] + "," + e[1] + "]");
+//		printG(Gw);
 	}
 }
